@@ -31,7 +31,12 @@ void configEncoder()
 	configAdc();
 }
 
-long encoderPosition() 
+void resetEncoderPosition() {
+	// coarse reset
+	laps = 0L;
+}
+
+void encoderPosition(long *_encPos) 
 {
 	a = *_AN0;
 	b = *_AN1;
@@ -190,5 +195,6 @@ long encoderPosition()
 	} 
 	last_nearest = nearest;
 	encoderAbsolutePosition = (laps * TRACK_LENGTH) + nearest;
-	return encoderAbsolutePosition;
+	// return encoderAbsolutePosition;
+	*_encPos = encoderAbsolutePosition;
 }

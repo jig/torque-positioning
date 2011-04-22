@@ -10,7 +10,7 @@ _MPWM1Interrupt(void)
 
 void configPwm(unsigned period) 
 {
-	TRISB &= 0b1111111111000000;
+	TRISB &= 0b0000001111111111;
 
  	ConfigIntMCPWM1( 
 			PWM1_INT_DIS & 

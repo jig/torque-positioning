@@ -2,16 +2,16 @@ long pid_deltaError = 0;
 long pid_lastPosError = 0;
 long pid_meanError = 0;
 
-float pid_attr_p;
-float pid_attr_i;
-float pid_attr_d;
-float pid_attr_m;
-int pid_attr_dutymin;
-int pid_attr_dutymax;
+float pid_attr_p = 0.1;
+float pid_attr_i = 0.0;
+float pid_attr_d = 0.0;
+float pid_attr_m = 0.0;
+int pid_attr_dutymin = 0;
+int pid_attr_dutymax = 20000;
 float targetAngle;
 
 void pid_Action(long posError, float *angle, float *power) {
-	int lastDeltaError = pid_deltaError;
+	long lastDeltaError = pid_deltaError;
 
 	pid_deltaError = posError-pid_lastPosError;
 	pid_lastPosError = posError;
@@ -33,7 +33,7 @@ void pid_Action(long posError, float *angle, float *power) {
 	if(action>0.0) {
 		// *angle = targetAngle	+ 90.0; // inverted encoder
 		*angle = targetAngle - 90.0; // direct encoder
-	} else if(action<0) {
+	} else if(action<0.0) {
 		action = -action;
 		// *angle = targetAngle - 90.0;  // inverted encoder
 		*angle = targetAngle + 90.0; // direct encoder
