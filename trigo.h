@@ -5,7 +5,7 @@ extern double angle;
 extern double power;
 
 void configField();
-void setField(long angle, long power);
+void setField();
 
 void setAngle(double a);
 void setPower(double p);

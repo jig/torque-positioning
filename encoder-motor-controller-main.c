@@ -16,6 +16,7 @@ _FICD(ICS_PGD3 & JTAGEN_OFF)
 #include "pwm.h"
 #include "trigo.h"
 #include "uart-config.h"
+#include "pid.h"
 
 #define PWM_PERIOD 1000
 #define PWM_MAXDUTY (PWM_PERIOD*2-1)
@@ -43,14 +44,21 @@ int main() {
 	configUart1(FCY, 1000000);
 	
 	long encPos = 0;
+	long brakeAt = 0;
 
-	long angle = 0;
-	long power = 990;
+	float angle = 0;
+	float power = 990;
+
+	setAngle(angle);
+	setPower(power);
 
 	while(1) {
 			resetTick();
 		encPos = encoderPosition();
 			tick();
-		setField(angle, power);
+		pid_Action(encPos - brakeAt, &angle, &power);
+			tick();
+		setField();
+			tick();
 	}
 }
