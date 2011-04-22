@@ -1,4 +1,4 @@
 #include "encoder-fingerprint.h"
 
 void configEncoder();
-long encoderPosition();
+void encoderPosition(long *encPos);

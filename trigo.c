@@ -14,31 +14,15 @@
 #define THIRDSPI (PI/3.0)
 #define DOUBLETHIRDSPI (DOUBLEPI/3.0)
 
-double angle = defaultAngle;
-double power = 0;
-
 void configField() {}
-void setField() {
+
+void setField(float angle, float power) {
 	double _angle = angle * TORADIANS;
 	long ph1 = power * cos(_angle+THIRDSPI);
 	long ph2 = power * cos(_angle);
 	long ph3 = power * cos(_angle-THIRDSPI);
 
+	// setPwmAll(1, 10000, 19999);
 	setPwmAll(ph1, ph2, ph3);
 }
 
-void setAngle(double a) {
-	angle = a;
-}
-
-void setPower(double p) {
-	power = p;
-}
-
-double getPower() {
-	return power;
-}
-
-double getAngle() {
-	return angle;
-}

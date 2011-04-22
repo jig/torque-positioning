@@ -1,0 +1,1 @@
+float getBestAngle(long encPos);
