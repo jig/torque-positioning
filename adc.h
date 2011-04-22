@@ -1,3 +1,10 @@
+/****************************************************************/
+/** Author: Jordi Íñigo Griera                                 **/
+/** Mail: a s t r o j i g on g m a i l dot c o m               **/
+/** GNU Public Licence v3                                      **/
+/** Doc: see http://code.google.com/p/jig-torque-positioning   **/
+/****************************************************************/
+
 // Define Message Buffer Length for ECAN1/ECAN2
 #define  MAX_CHNUM 4 // Highest Analog input number in Channel Scan (AN3 => 4)
 #define  LOG_SAMP_BUFF_SIZE 0

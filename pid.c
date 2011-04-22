@@ -1,3 +1,10 @@
+/****************************************************************/
+/** Author: Jordi Íñigo Griera                                 **/
+/** Mail: a s t r o j i g on g m a i l dot c o m               **/
+/** GNU Public Licence v3                                      **/
+/** Doc: see http://code.google.com/p/jig-torque-positioning   **/
+/****************************************************************/
+
 long pid_deltaError = 0;
 long pid_lastPosError = 0;
 long pid_meanError = 0;
