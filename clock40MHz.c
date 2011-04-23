@@ -7,6 +7,16 @@
 
 #include <p33Fxxxx.h>
 
+/*
+	void configClock40MHz()
+	Configures the dsPIC33 microcontroller to work at 40 MHz instruction clock for a 40 MIPS rate
+	(Fosc works at 80 MHz)
+
+	Note: you must use in main C file, since it is not done here:
+	_FOSCSEL(FNOSC_FRC)
+	_FOSC(FCKSM_CSECMD & OSCIOFNC_ON  & POSCMD_NONE)
+*/
+
 void configClock40MHz() {
 	/* Configure Oscillator to operate device at 40MHz
 	Fosc = (Fin x M) / (N1 x N2),  Fcy = Fosc / 2

@@ -43,6 +43,43 @@ void resetEncoderPosition() {
 	laps = 0L;
 }
 
+void coarseEncoderPosition(long *_encPos) 
+{
+	a = *_AN0;
+	b = *_AN1;
+
+	// init search variables
+	long_dist = 0x7FFFFFFF;
+	nearest = -1;
+
+	// Coarse position approximation: track is search in inc1 steps 
+	for(scan=0;scan<TRACK_LENGTH;scan+=coarseInc) {
+		long error_a = a-track[scan].a;
+		long error_b = b-track[scan].b;
+		error_b *= error_b;
+		error_a *= error_a;
+		long_d_aux = error_a + error_b;
+		if(long_d_aux < long_dist) {
+			long_dist = long_d_aux;
+			nearest = scan;
+		}
+	}
+
+	if(last_nearest>LAP_SCAN_THRESHOLD_HIGH) {
+		if(nearest<LAP_SCAN_THRESHOLD_LOW) {
+			++laps;
+		}
+	} else if(last_nearest<LAP_SCAN_THRESHOLD_LOW) {
+		if(nearest>LAP_SCAN_THRESHOLD_HIGH) {
+			--laps;
+		}
+	} 
+
+	last_nearest = nearest;
+	encoderAbsolutePosition = (laps * TRACK_LENGTH) + nearest;
+	*_encPos = encoderAbsolutePosition;
+}
+
 void encoderPosition(long *_encPos) 
 {
 	a = *_AN0;
@@ -200,8 +237,8 @@ void encoderPosition(long *_encPos)
 			--laps;
 		}
 	} 
+
 	last_nearest = nearest;
 	encoderAbsolutePosition = (laps * TRACK_LENGTH) + nearest;
-	// return encoderAbsolutePosition;
 	*_encPos = encoderAbsolutePosition;
 }

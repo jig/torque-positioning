@@ -816,17 +816,19 @@ const struct encoder_point track[] = {
 	{440,979}
 };
 
+#define COARSEINC 100
 #define INC1 50
 #define INC2 7
 #define _TRACK_LENGTH (sizeof track/sizeof (struct encoder_point))
 #define _LAST_COARSE1_TRACK_POSITION ((_TRACK_LENGTH/INC1)*INC1)
 #define _LAST_COARSE2_TRACK_POSITION ((_TRACK_LENGTH/INC2)*INC2)
 
-#define _LAP_SCAN_THRESHOLD_LOW 200
-#define _LAP_SCAN_THRESHOLD_HIGH 700
+#define _LAP_SCAN_THRESHOLD_LOW 250
+#define _LAP_SCAN_THRESHOLD_HIGH 560
 
-const int inc1 = INC1;
-const int inc2 = INC2;
+const unsigned int coarseInc = COARSEINC;
+const unsigned int inc1 = INC1;
+const unsigned int inc2 = INC2;
 const unsigned int TRACK_LENGTH = _TRACK_LENGTH;
 const unsigned int LAST_COARSE1_TRACK_POSITION = _LAST_COARSE1_TRACK_POSITION;
 const unsigned int LAST_COARSE2_TRACK_POSITION = _LAST_COARSE2_TRACK_POSITION;
