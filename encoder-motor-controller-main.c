@@ -40,25 +40,10 @@ int main() {
 	long encPos = 0;
 	long brakeAt = 0;
 
+	// now reset the encoder to zero (coarse, approx)
 	setField(0, PWM_MAXDUTY);
 	// 2 s is enough for my system to stabilize from a near position, 3 s from a far position
 	delay_s(3); 
-	setField(450, PWM_MAXDUTY);
-	delay_s(3); 
-	setField(900, PWM_MAXDUTY);
-	delay_s(3); 
-	setField(1350, PWM_MAXDUTY);
-	delay_s(3); 
-	setField(1800, PWM_MAXDUTY);
-	delay_s(3); 
-	setField(2250, PWM_MAXDUTY);
-	delay_s(3); 
-	setField(2700, PWM_MAXDUTY);
-	delay_s(3); 
-	setField(3150, PWM_MAXDUTY);
-	delay_s(3);
-	// now reset the encoder to zero (coarse, approx)
-	setField(0, 0);
 
 	resetEncoderPosition(0);
 	int decaAngle = 0;
