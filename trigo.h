@@ -1,8 +1,9 @@
-// #define defaultAngle (+60)
-#define defaultAngle 0
-
-extern double angle;
-extern double power;
+/****************************************************************/
+/** Author: Jordi Íñigo Griera                                 **/
+/** Mail: a s t r o j i g on g m a i l dot c o m               **/
+/** GNU Public Licence v3                                      **/
+/** Doc: see http://code.google.com/p/jig-torque-positioning   **/
+/****************************************************************/
 
 void configField();
-void setField(float angle, float power);
+void setField(int decaAngle, unsigned int power);

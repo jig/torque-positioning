@@ -7,5 +7,5 @@
 
 #ifndef _PID_H
 #	define _PID_H
-	void pid_Action(long posError, float *angle, float *power);
+	void pid_Action(long posError, int *decaAngle, unsigned int *power);
 #endif

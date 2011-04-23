@@ -10,8 +10,9 @@
 	struct encoder_point {int a; int b;};
 	
 	extern const struct encoder_point track[];
-	extern const int inc1;
-	extern const int inc2;
+	extern const unsigned int coarseInc;
+	extern const unsigned int inc1;
+	extern const unsigned int inc2;
 	extern const unsigned int TRACK_LENGTH;
 	extern const unsigned int LAST_COARSE1_TRACK_POSITION;
 	extern const unsigned int LAST_COARSE2_TRACK_POSITION;

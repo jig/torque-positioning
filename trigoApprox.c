@@ -5,85 +5,63 @@
 /** Doc: see http://code.google.com/p/jig-torque-positioning   **/
 /****************************************************************/
 
-#ifndef _TRIGO_APPROX_H
-#endif _TRIGO_APPROX_H
-#	include <p33Fxxxx.h>
-#	define FCY 7372800UL/2
+#include <p33Fxxxx.h>
+#define FCY 7372800UL/2
 
-#	include <libpic30.h>
+#include <libpic30.h>
 
-#	include <math.h>
-#	include "trigo.h"
-#	include "pwm.h"
+#include <math.h>
+#include "trigo.h"
+#include "pwm.h"
 
-#	define PI 3.1415926535897932384626433832795
-#	define DOUBLEPI (PI*2.0)
-#	define HALFPI (PI/2.0)
-#	define TORADIANS (PI/180.0)
-#	define THIRDSPI (PI/3.0)
-#	define DOUBLETHIRDSPI (DOUBLEPI/3.0)
+#define PI 3.1415926535897932384626433832795
+#define DOUBLEPI (PI*2.0)
+#define HALFPI (PI/2.0)
+#define TORADIANS (PI/180.0)
+#define THIRDSPI (PI/3.0)
+#define DOUBLETHIRDSPI (DOUBLEPI/3.0)
 
-	double field_angle = defaultAngle;
-	double field_power = 0;
-	
-	// in 90 degrees:
-	#define SIN_RESOLUTION 900
-	unsigned int sinVal[SIN_RESOLUTION+1];
-	
-	long sinAprox(double angle) {
-		// unsigned int integerAngle = (angle/90.0)*((double)SIN_RESOLUTION);
-		unsigned int integerAngle = angle*(SIN_RESOLUTION/90.0);
-	
-		integerAngle = integerAngle%(SIN_RESOLUTION * 4);
-	
-		if(integerAngle<SIN_RESOLUTION) {
-			return (long)sinVal[integerAngle];
-		}
-		if(integerAngle<SIN_RESOLUTION*2) {
-			unsigned int idx = (SIN_RESOLUTION*2)-integerAngle;
-			return (long)sinVal[idx];
-		}
-		if(integerAngle<SIN_RESOLUTION*3) {
-			unsigned int idx = integerAngle-(SIN_RESOLUTION*2);
-			return -(long)sinVal[idx];
-		}
-		return -(long)sinVal[(SIN_RESOLUTION*4)-integerAngle];
+// This functions are based on "deca-degree" resolution: so a whole circunference has 3600 deca-degrees
+// Deca-degrees offer resolution enough to shape the magnetic field needed, an can be easily stored in RAM
+// FFS: store the deca-degree shape on ROM
+// FFS2: use of fractional Q-something dsPIC types
+
+// in 90 degrees:
+#define SIN_RESOLUTION 900
+int sinVal[SIN_RESOLUTION+1];
+
+int sinAprox(int decaAngle) {
+	decaAngle = decaAngle % (SIN_RESOLUTION * 4);
+
+	if(decaAngle <= SIN_RESOLUTION) {
+		return sinVal[decaAngle];
 	}
-	
-	void configField() {
-		int i;
-		for(i=0; i<=SIN_RESOLUTION; ++i) {
-			double sinValue = sin( ((double)i) * (HALFPI/SIN_RESOLUTION) );
-			sinVal[i] = (long)(65535.4 * sinValue);
-		}
+	if(decaAngle <= SIN_RESOLUTION*2) {
+		int idx = (SIN_RESOLUTION*2) - decaAngle;
+		return sinVal[idx];
 	}
-	
-	extern unsigned int time;
-	void setField(long angle, long power) {
-		time = TMR1;
-		long ph1 = field_power * sinAprox(field_angle+90.0 + 60.0);
-		time = TMR1;
-		long ph2 = field_power * sinAprox(field_angle+90.0 );
-		time = TMR1;
-		long ph3 = field_power * sinAprox(field_angle+90.0 - 60.0);
-		time = TMR1;
-	
-		setPwmAll(ph1, ph2, ph3);
+	if(decaAngle <= SIN_RESOLUTION*3) {
+		int idx = decaAngle - (SIN_RESOLUTION*2);
+		return -sinVal[idx];
 	}
-	
-	void setAngle(double a) {
-		field_angle = a;
+	return -sinVal[(SIN_RESOLUTION*4) - decaAngle];
+}
+
+void configField() {
+	int i;
+	for(i=0; i<=SIN_RESOLUTION; ++i) {
+		double sinValue = sin(i * (HALFPI/SIN_RESOLUTION));
+		sinVal[i] = (int)(32767.49 * sinValue);
 	}
-	
-	void setPower(double p) {
-		field_power = p;
-	}
-	
-	double getPower() {
-		return field_power;
-	}
-	
-	double getAngle() {
-		return field_angle;
-	}
-#endif
+}
+
+void setField(int decAngle, unsigned int power) {
+	long ph1 = (long)power * sinAprox(decAngle+900 + 600);
+	long ph2 = (long)power * sinAprox(decAngle+900);
+	long ph3 = (long)power * sinAprox(decAngle+900 - 600);
+
+	ph1 >>= 15;
+	ph2 >>= 15;
+	ph3 >>= 15;
+	setPwmAll(ph1, ph2, ph3);
+}
