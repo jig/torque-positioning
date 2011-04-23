@@ -14,7 +14,7 @@ float pid_attr_i = 0.0;
 float pid_attr_d = 100.0;
 float pid_attr_m = 0.0;*/
 int pid_attr_p = 1;
-int pid_attr_i = 0;
+int pid_attr_i = 1;
 int pid_attr_d = 100;
 int pid_attr_m = 0;
 
@@ -23,13 +23,24 @@ int pid_attr_dutymax = 20000;
 int targetDecaAngle;
 
 void pid_Action(long posError, int *decaAngle, unsigned int *power) {
-	long lastDeltaError = pid_deltaError;
+	// long lastDeltaError = pid_deltaError;
 
 	pid_deltaError = posError-pid_lastPosError;
 	pid_lastPosError = posError;
 
 	long action;
-	action = posError * pid_attr_p;
+	action = 
+		posError * pid_attr_p +
+		pid_deltaError * pid_attr_d +
+		+ pid_meanError * pid_attr_i;
+	pid_meanError = pid_meanError * pid_attr_m + posError;
+
+	// 5000 ~ PWM_MAXDUTY / attr_i
+	if(pid_meanError > 10000) {
+		pid_meanError = 10000;
+	} else if(pid_meanError < -10000) {
+		pid_meanError = -10000;
+	}
 
 	// doblo la derivada
 	/*float action = 
