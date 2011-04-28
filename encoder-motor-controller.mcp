@@ -47,6 +47,7 @@ file_019=.
 file_020=.
 file_021=.
 file_022=.
+file_023=.
 [GENERATED_FILES]
 file_000=no
 file_001=no
@@ -71,6 +72,7 @@ file_019=no
 file_020=no
 file_021=no
 file_022=no
+file_023=no
 [OTHER_FILES]
 file_000=no
 file_001=no
@@ -95,6 +97,7 @@ file_019=no
 file_020=no
 file_021=no
 file_022=no
+file_023=no
 [FILE_INFO]
 file_000=encoder-motor-controller-main.c
 file_001=encoder-fingerprint.c
@@ -119,6 +122,7 @@ file_019=pid.h
 file_020=adc.h
 file_021=encoder-angle-mapping.h
 file_022=delay.h
+file_023=C:\Program Files (x86)\Microchip\mplabc30\v3.25\support\dsPIC33F\h\p33FJ64MC802.h
 [SUITE_INFO]
 suite_guid={479DDE59-4D56-455E-855E-FFF59A3DB57E}
 suite_state=

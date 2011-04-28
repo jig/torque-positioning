@@ -5,6 +5,10 @@
 /** Doc: see http://code.google.com/p/jig-torque-positioning   **/
 /****************************************************************/
 
-float getBestAngle(long encPos) { 
-	return encPos * (509703.0/180.0);
+// defines steps per (decaAngle) degree:
+// (this encoder has 1 million (approx) steps per rev:
+#define ANGLE_ENCODER_RATIO (1080000L/3600L)
+
+int getBestAngle(long encPos) { 
+	return encPos / ANGLE_ENCODER_RATIO;
 }

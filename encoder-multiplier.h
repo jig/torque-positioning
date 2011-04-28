@@ -9,3 +9,4 @@
 
 void configEncoder();
 void encoderPosition(long *encPos);
+void resetEncoderPosition();

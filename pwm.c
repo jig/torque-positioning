@@ -94,17 +94,22 @@ void configPwm(unsigned period)
 void setPwmAll(long duty1, long duty2, long duty3) {
 	PWM1CON2bits.UDIS = 0;
 	
-	P1OVDCONbits.POVD1H = duty1>0;
-	P1OVDCONbits.POVD1L = !P1OVDCONbits.POVD1H;
-	P1DC1 = P1OVDCONbits.POVD1H?duty1:-duty1;	
+	int d1 = duty1>0;
+	int d2 = duty2>0;
+	int d3 = duty3>0;
 
-	P1OVDCONbits.POVD2H = duty2>0;
-	P1OVDCONbits.POVD2L = !P1OVDCONbits.POVD2H;
-	P1DC2 = P1OVDCONbits.POVD2H?duty2:-duty2;	
+	P1OVDCONbits.POVD1H = d1;
+	P1OVDCONbits.POVD1L = !d1;
 
-	P1OVDCONbits.POVD3H = duty3>0;
-	P1OVDCONbits.POVD3L = !P1OVDCONbits.POVD3H;
-	P1DC3 = P1OVDCONbits.POVD3H?duty3:-duty3;	
+	P1OVDCONbits.POVD2H = d2;
+	P1OVDCONbits.POVD2L = !d2;
+
+	P1OVDCONbits.POVD3H = d3;
+	P1OVDCONbits.POVD3L = !d3;
+
+	P1DC1 = d1?duty1:-duty1;	
+	P1DC2 = d2?duty2:-duty2;	
+	P1DC3 = d3?duty3:-duty3;	
 }
 
 void setPwm(int channel, long dutycycle) {

@@ -5,4 +5,4 @@
 /** Doc: see http://code.google.com/p/jig-torque-positioning   **/
 /****************************************************************/
 
-float getBestAngle(long encPos);
+int getBestAngle(long encPos);
