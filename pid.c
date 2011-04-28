@@ -13,59 +13,50 @@ long pid_meanError = 0;
 float pid_attr_i = 0.0;
 float pid_attr_d = 100.0;
 float pid_attr_m = 0.0;*/
-int pid_attr_p = 1;
-int pid_attr_i = 1;
-int pid_attr_d = 100;
-int pid_attr_m = 0;
+unsigned int pid_attr_d = 100;
+unsigned int pid_attr_p = 10;
+unsigned int pid_attr_p_divisor = 0;
+unsigned int pid_attr_i = 0;
+unsigned int pid_attr_i_divisor = 8;
+unsigned int pid_attr_m = 1;
 
-int pid_attr_dutymin = 0;
-int pid_attr_dutymax = 20000;
-int targetDecaAngle;
+unsigned int pid_attr_dutymin;
+unsigned int pid_attr_dutymax;
+unsigned int pid_attr_meanErrorMax; 
 
-void pid_Action(long posError, int *decaAngle, unsigned int *power) {
-	// long lastDeltaError = pid_deltaError;
+void configPid(unsigned int dutymin, unsigned int dutymax, unsigned meanErrorMax) {
+	pid_attr_dutymin = dutymin;
+	pid_attr_dutymax = dutymax;
+	pid_attr_meanErrorMax = meanErrorMax;
+}
+
+int errorLog[1024];
+int* errorLogPointer = errorLog;
+int* errorLogLastPointer = errorLog + (sizeof errorLog/sizeof errorLog[0]);
+int actionLog[1024];
+int* actionLogPointer = actionLog;
+int* actionLogLastPointer = actionLog + (sizeof actionLog/sizeof actionLog[0]);
+
+void pid_Action(long posError, int targetDecaAngle, int *decaAngle, unsigned int *power) {
+	long lastDeltaError = pid_deltaError;
 
 	pid_deltaError = posError-pid_lastPosError;
 	pid_lastPosError = posError;
 
 	long action;
 	action = 
-		posError * pid_attr_p +
-		pid_deltaError * pid_attr_d +
-		+ pid_meanError * pid_attr_i;
+		((posError * pid_attr_p)>>pid_attr_p_divisor) +
+		(lastDeltaError + pid_deltaError) * pid_attr_d +
+		+ ((pid_meanError * pid_attr_i)>>pid_attr_i_divisor);
+
 	pid_meanError = pid_meanError * pid_attr_m + posError;
 
-	// 5000 ~ PWM_MAXDUTY / attr_i
-	if(pid_meanError > 10000) {
-		pid_meanError = 10000;
-	} else if(pid_meanError < -10000) {
-		pid_meanError = -10000;
+	*actionLogPointer++ = action;
+	*errorLogPointer++ = posError;
+	if(errorLogPointer == errorLogLastPointer) {
+		errorLogPointer = errorLog;
+		actionLogPointer = actionLog;
 	}
-
-	// doblo la derivada
-	/*float action = 
-		(lastDeltaError + pid_deltaError) * pid_attr_d 
-		+ posError * pid_attr_p 
-		+ pid_meanError * pid_attr_i;
-	pid_meanError = pid_meanError * pid_attr_m + posError;
-
-	// 5000 ~ PWM_MAXDUTY / attr_i
-	if(pid_meanError>10000.0) {
-		pid_meanError=10000.0;
-	} else if(pid_meanError<-10000.0) {
-		pid_meanError=-10000.0;
-	}
-
-	if(action>0.0) {
-		// *decaAngle = targetDecaAngle	+ 900; // inverted encoder
-		*decaAngle = targetDecaAngle - 900; // direct encoder
-	} else if(action<0.0) {
-		action = -action;
-		// *decaAngle = targetDecaAngle - 900;  // inverted encoder
-		*decaAngle = targetDecaAngle + 900; // direct encoder
-	} else {
-		*decaAngle = targetDecaAngle;
-	}*/
 
 	if(action > 0) {
 		// *decaAngle = targetDecaAngle	+ 900; // inverted encoder
@@ -81,8 +72,12 @@ void pid_Action(long posError, int *decaAngle, unsigned int *power) {
 	if(action > pid_attr_dutymax) {
 		*power = pid_attr_dutymax;
 	} else if(action < pid_attr_dutymin) {
-		*power = pid_attr_dutymin;
+		if(action == 0) {
+			*power = 0;
+		} else {
+			*power = action + pid_attr_dutymin;
+		}
 	} else {
-		*power = action;
+		*power = action + pid_attr_dutymin;
 	}
 }

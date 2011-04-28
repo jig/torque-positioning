@@ -7,5 +7,6 @@
 
 #ifndef _PID_H
 #	define _PID_H
-	void pid_Action(long posError, int *decaAngle, unsigned int *power);
+	void configPid(unsigned int dutymin, unsigned int dutymax, unsigned meanErrorMax);
+	void pid_Action(long posError, int targetDecaAngle, int *decaAngle, unsigned int *power);
 #endif

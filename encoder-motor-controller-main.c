@@ -8,9 +8,10 @@
 #include <p33Fxxxx.h>
 
 _FOSCSEL(FNOSC_FRC)
-_FOSC(FCKSM_CSECMD & OSCIOFNC_ON  & POSCMD_NONE)
+_FOSC(FCKSM_CSECMD & OSCIOFNC_OFF  & POSCMD_NONE)
 _FWDT(FWDTEN_OFF)
 _FICD(ICS_PGD3 & JTAGEN_OFF)
+_FPOR(ALTI2C_ON)
 
 #define FCY 40000000UL
 
@@ -27,7 +28,7 @@ _FICD(ICS_PGD3 & JTAGEN_OFF)
 #include "delay.h"
 
 #define PWM_PERIOD 1000
-#define PWM_MAXDUTY (PWM_PERIOD*2-1)
+#define PWM_MAXDUTY (PWM_PERIOD*2)
 
 int main() {
 	configClock40MHz();
@@ -35,8 +36,9 @@ int main() {
 	configEncoder();
 	configPwm(PWM_PERIOD);
 	configField();
-	configUart1(FCY, 1000000);
-	
+	configPid(200, PWM_MAXDUTY, 500);
+	configUart1(FCY, 10000000);	
+
 	long encPos = 0;
 	long brakeAt = 0;
 
@@ -44,12 +46,16 @@ int main() {
 	setField(0, PWM_MAXDUTY);
 	// 2 s is enough for my system to stabilize from a near position, 3 s from a far position
 	delay_s(3); 
-
-	resetEncoderPosition(0);
+	/*int p1=1, p2=1, p3=1;
+	while(p1!=13) {
+		setPwmAll(p1, p2, p3);
+	}*/
+	resetEncoderPosition();
 	int decaAngle = 0;
 	unsigned int power = 0;
 
-	while(1) {
+	/*unsigned int i;
+	for(i=0;i<40000;++i) {
 			TMR1 = 0;
 		coarseEncoderPosition(&encPos);
 			// U1TXREG = 0b11111101;
@@ -57,5 +63,80 @@ int main() {
 			// U1TXREG = 0b11110101;
 		setField(decaAngle, power);
 			U1TXREG = 0b11111111;
+	}
+	while(1) {
+		for(brakeAt=0; brakeAt<TRACK_LENGTH;brakeAt+=100) {
+			for(i=0;i<4000;++i) {
+					TMR1 = 0;
+				encoderPosition(&encPos);
+					// U1TXREG = 0b11111101;
+				pid_Action(encPos - brakeAt, &decaAngle, &power);
+					// U1TXREG = 0b11110101;
+				setField(decaAngle, power);
+					U1TXREG = 0b11111111;
+			}
+		}
+		for(brakeAt=0; brakeAt<TRACK_LENGTH;brakeAt+=10) {
+			for(i=0;i<400;++i) {
+					TMR1 = 0;
+				encoderPosition(&encPos);
+					// U1TXREG = 0b11111101;
+				pid_Action(encPos - brakeAt, &decaAngle, &power);
+					// U1TXREG = 0b11110101;
+				setField(decaAngle, power);
+					U1TXREG = 0b11111111;
+			}
+		}
+		for(brakeAt=0; brakeAt<TRACK_LENGTH;++brakeAt) {
+			for(i=0;i<40;++i) {
+					TMR1 = 0;
+				encoderPosition(&encPos);
+					// U1TXREG = 0b11111101;
+				pid_Action(encPos - brakeAt, &decaAngle, &power);
+					// U1TXREG = 0b11110101;
+				setField(decaAngle, power);
+					U1TXREG = 0b11111111;
+			}
+		}
+	}*/
+	int i;
+	int incBrakeAt = 1;
+	int incI = 100; 
+	long minTrack = -100L * 3600L;
+	long maxTrack = 200L * 3600L;
+	int fieldTargetDecaAngle; 
+
+	for(brakeAt=0; brakeAt<maxTrack;brakeAt+=incBrakeAt) {
+		TMR1 = 0;
+		U1TXREG = 0b11111111;
+		for(i=0;i<incI;++i) {
+			fieldTargetDecaAngle = getBestAngle(brakeAt);
+			encoderPosition(&encPos);
+			pid_Action(encPos - brakeAt, fieldTargetDecaAngle, &decaAngle, &power);
+			setField(decaAngle, power);
+		}
+	}
+
+	while(1) {
+		for(brakeAt=maxTrack; brakeAt>minTrack;brakeAt-=incBrakeAt) {
+			TMR1 = 0;
+			U1TXREG = 0b11111111;
+			for(i=0;i<incI;++i) {
+				fieldTargetDecaAngle = getBestAngle(brakeAt);
+				encoderPosition(&encPos);
+				pid_Action(encPos - brakeAt, fieldTargetDecaAngle, &decaAngle, &power);
+				setField(decaAngle, power);
+			}
+		}
+		for(brakeAt=minTrack; brakeAt<maxTrack;brakeAt+=incBrakeAt) {
+			TMR1 = 0;
+			U1TXREG = 0b11111111;
+			for(i=0;i<incI;++i) {
+				fieldTargetDecaAngle = getBestAngle(brakeAt);
+				encoderPosition(&encPos);
+				pid_Action(encPos - brakeAt, fieldTargetDecaAngle, &decaAngle, &power);
+				setField(decaAngle, power);
+			}
+		}
 	}
 }

@@ -30,23 +30,6 @@
 #define SIN_RESOLUTION 900
 int sinVal[SIN_RESOLUTION+1];
 
-int sinAprox(int decaAngle) {
-	decaAngle = decaAngle % (SIN_RESOLUTION * 4);
-
-	if(decaAngle <= SIN_RESOLUTION) {
-		return sinVal[decaAngle];
-	}
-	if(decaAngle <= SIN_RESOLUTION*2) {
-		int idx = (SIN_RESOLUTION*2) - decaAngle;
-		return sinVal[idx];
-	}
-	if(decaAngle <= SIN_RESOLUTION*3) {
-		int idx = decaAngle - (SIN_RESOLUTION*2);
-		return -sinVal[idx];
-	}
-	return -sinVal[(SIN_RESOLUTION*4) - decaAngle];
-}
-
 void configField() {
 	int i;
 	for(i=0; i<=SIN_RESOLUTION; ++i) {
@@ -55,10 +38,36 @@ void configField() {
 	}
 }
 
+int sinAprox(int decaAngle) {
+	int positive;
+
+	if(decaAngle < 0) {
+		positive = 0;
+		decaAngle = -decaAngle;
+	} else {
+		positive = 1;
+	}
+
+	decaAngle = decaAngle % (SIN_RESOLUTION * 4);
+
+	if(decaAngle <= SIN_RESOLUTION) {
+		return positive?sinVal[decaAngle]:-sinVal[decaAngle];
+	}
+	if(decaAngle <= SIN_RESOLUTION*2) {
+		int idx = (SIN_RESOLUTION*2) - decaAngle;
+		return positive?sinVal[idx]:-sinVal[idx];
+	}
+	if(decaAngle <= SIN_RESOLUTION*3) {
+		int idx = decaAngle - (SIN_RESOLUTION*2);
+		return positive?-sinVal[idx]:sinVal[idx];
+	}
+	return positive?-sinVal[(SIN_RESOLUTION*4) - decaAngle]:sinVal[(SIN_RESOLUTION*4) - decaAngle];
+}
+
 void setField(int decAngle, unsigned int power) {
-	long ph1 = (long)power * sinAprox(decAngle+900 + 600);
-	long ph2 = (long)power * sinAprox(decAngle+900);
-	long ph3 = (long)power * sinAprox(decAngle+900 - 600);
+	long ph1 = (long)power * sinAprox(decAngle + 600);
+	long ph2 = (long)power * sinAprox(decAngle);
+	long ph3 = (long)power * sinAprox(decAngle - 600);
 
 	ph1 >>= 15;
 	ph2 >>= 15;
