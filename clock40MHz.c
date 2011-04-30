@@ -14,7 +14,7 @@
 
 	Note: you must use in main C file, since it is not done here:
 	_FOSCSEL(FNOSC_FRC)
-	_FOSC(FCKSM_CSECMD & OSCIOFNC_ON  & POSCMD_NONE)
+	_FOSC(FCKSM_CSECMD & OSCIOFNC_OFF  & POSCMD_NONE)
 */
 
 void configClock40MHz() {
@@ -23,8 +23,8 @@ void configClock40MHz() {
 	Fosc= 7.37 x (43) / (2 x 2) = ~80MHz for Fosc, Fcy = 40MHz */
 	/* Configure PLL prescaler, PLL postscaler, PLL divisor */
 	PLLFBD = 41; /*  M = PLLFBD + 2 */
-	CLKDIVbits.PLLPOST = 0;   /*  N1 = 2 */
-	CLKDIVbits.PLLPRE = 0;     /*  N2 = 2 */
+	CLKDIVbits.PLLPOST = 0;		// N1 = 2
+	CLKDIVbits.PLLPRE = 0;		// N2 = 2 
 	__builtin_write_OSCCONH(0x01); /*  New Oscillator FRC w/ PLL */
 	__builtin_write_OSCCONL(0x01);  /*  Enable Switch */
 	while(OSCCONbits.COSC != 0b001); /*  Wait for new Oscillator to become FRC w/ PLL */  
