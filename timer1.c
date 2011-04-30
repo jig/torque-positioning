@@ -24,7 +24,6 @@ _T3Interrupt (void)
 
 void configTimer1(int pr1) {
 	TMR1  = 0;      	/* Reset Timer1 to 0x0000 */
-	//PR1   = 0xFFFF;		/* assigning Period to Timer period register */
 	PR1   = pr1;		/* assigning Period to Timer period register */
     T1CON = 			/* Configure timer control reg */
 		T1_ON & 
