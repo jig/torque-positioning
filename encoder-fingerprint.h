@@ -18,5 +18,9 @@
 	extern const unsigned int LAST_COARSE2_TRACK_POSITION;
 	extern const unsigned int LAP_SCAN_THRESHOLD_LOW;
 	extern const unsigned int LAP_SCAN_THRESHOLD_HIGH;
+	extern int short_a[];
+	extern int short_b[];
+	extern int short_pos[];
+	extern const unsigned int SHORT_TRACK_LENGTH;
 #endif
 

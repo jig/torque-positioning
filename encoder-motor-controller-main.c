@@ -8,7 +8,7 @@
 #include <p33Fxxxx.h>
 
 _FOSCSEL(FNOSC_FRC)
-_FOSC(FCKSM_CSECMD & OSCIOFNC_OFF  & POSCMD_NONE)
+_FOSC(FCKSM_CSECMD & OSCIOFNC_ON & POSCMD_NONE)
 _FWDT(FWDTEN_OFF)
 _FICD(ICS_PGD3 & JTAGEN_OFF)
 _FPOR(ALTI2C_ON)
@@ -23,7 +23,8 @@ _FPOR(ALTI2C_ON)
 #include "encoder-fingerprint.h"
 #include "pwm.h"
 #include "trigo.h"
-#include "uart-config.h"
+#include "uart-config1.h"
+#include "uart-config2.h"
 #include "pid.h"
 #include "delay.h"
 
@@ -38,6 +39,7 @@ int main() {
 	configField();
 	configPid(200, PWM_MAXDUTY, 500);
 	configUart1(FCY, 10000000);	
+	configUart2(FCY, 10000000);	
 
 	long encPos = 0;
 	long brakeAt = 0;
@@ -51,54 +53,11 @@ int main() {
 		setPwmAll(p1, p2, p3);
 	}*/
 	resetEncoderPosition();
-	int decaAngle = 0;
-	unsigned int power = 0;
+	encoderPosition(&encPos);
 
-	/*unsigned int i;
-	for(i=0;i<40000;++i) {
-			TMR1 = 0;
-		coarseEncoderPosition(&encPos);
-			// U1TXREG = 0b11111101;
-		pid_Action(encPos - brakeAt, &decaAngle, &power);
-			// U1TXREG = 0b11110101;
-		setField(decaAngle, power);
-			U1TXREG = 0b11111111;
-	}
-	while(1) {
-		for(brakeAt=0; brakeAt<TRACK_LENGTH;brakeAt+=100) {
-			for(i=0;i<4000;++i) {
-					TMR1 = 0;
-				encoderPosition(&encPos);
-					// U1TXREG = 0b11111101;
-				pid_Action(encPos - brakeAt, &decaAngle, &power);
-					// U1TXREG = 0b11110101;
-				setField(decaAngle, power);
-					U1TXREG = 0b11111111;
-			}
-		}
-		for(brakeAt=0; brakeAt<TRACK_LENGTH;brakeAt+=10) {
-			for(i=0;i<400;++i) {
-					TMR1 = 0;
-				encoderPosition(&encPos);
-					// U1TXREG = 0b11111101;
-				pid_Action(encPos - brakeAt, &decaAngle, &power);
-					// U1TXREG = 0b11110101;
-				setField(decaAngle, power);
-					U1TXREG = 0b11111111;
-			}
-		}
-		for(brakeAt=0; brakeAt<TRACK_LENGTH;++brakeAt) {
-			for(i=0;i<40;++i) {
-					TMR1 = 0;
-				encoderPosition(&encPos);
-					// U1TXREG = 0b11111101;
-				pid_Action(encPos - brakeAt, &decaAngle, &power);
-					// U1TXREG = 0b11110101;
-				setField(decaAngle, power);
-					U1TXREG = 0b11111111;
-			}
-		}
-	}*/
+	int decaAngle;
+	unsigned int power;
+
 	int i;
 	int incBrakeAt = 1;
 	int incI = 100; 
@@ -108,11 +67,15 @@ int main() {
 
 	for(brakeAt=0; brakeAt<maxTrack;brakeAt+=incBrakeAt) {
 		TMR1 = 0;
-		U1TXREG = 0b11111111;
 		for(i=0;i<incI;++i) {
+			U1TXREG = 0b11111111;
+			U2TXREG = 0;
 			fieldTargetDecaAngle = getBestAngle(brakeAt);
+			U2TXREG = 1;
 			encoderPosition(&encPos);
+			U2TXREG = 5;
 			pid_Action(encPos - brakeAt, fieldTargetDecaAngle, &decaAngle, &power);
+			U2TXREG = 9;
 			setField(decaAngle, power);
 		}
 	}

@@ -5,6 +5,8 @@
 /** Doc: see http://code.google.com/p/jig-torque-positioning   **/
 /****************************************************************/
 
+#include <p33Fxxxx.h> // TMR1
+
 #include "adc.h"
 #include "encoder-fingerprint.h"
 #include "encoder-multiplier.h"
@@ -36,6 +38,13 @@ int absolute_command = 0;
 void configEncoder()
 {
 	configAdc();
+	int i;
+	for(i=0; i < SHORT_TRACK_LENGTH; ++i) {
+		int pos = TRACK_LENGTH * i / SHORT_TRACK_LENGTH;
+		short_a[i] = track[pos].a >> 3;
+		short_b[i] = track[pos].b >> 3;
+		short_pos[i] = pos;
+	}
 }
 
 void resetEncoderPosition() {
@@ -43,65 +52,32 @@ void resetEncoderPosition() {
 	laps = 0L;
 }
 
-void coarseEncoderPosition(long *_encPos) 
+void encoderPosition(long *_encPos)
 {
 	a = *_AN0;
 	b = *_AN1;
+	int sa = a>>3;
+	int sb = b>>3;
 
+	TMR1 = 0;
 	// init search variables
-	long_dist = 0x7FFFFFFF;
+	dist = 0x7FFF;
 	nearest = -1;
 
 	// Coarse position approximation: track is search in inc1 steps 
-	for(scan=0;scan<TRACK_LENGTH;scan+=coarseInc) {
-		long error_a = a-track[scan].a;
-		long error_b = b-track[scan].b;
+	for(scan=0;scan<SHORT_TRACK_LENGTH;++scan) {
+		int error_a = sa-short_a[scan];
+		int error_b = sb-short_b[scan];
 		error_b *= error_b;
 		error_a *= error_a;
-		long_d_aux = error_a + error_b;
-		if(long_d_aux < long_dist) {
-			long_dist = long_d_aux;
-			nearest = scan;
+		d_aux = error_a + error_b;
+		if(d_aux < dist) {
+			dist = d_aux;
+			nearest = short_pos[scan];
 		}
 	}
-
-	if(last_nearest>LAP_SCAN_THRESHOLD_HIGH) {
-		if(nearest<LAP_SCAN_THRESHOLD_LOW) {
-			++laps;
-		}
-	} else if(last_nearest<LAP_SCAN_THRESHOLD_LOW) {
-		if(nearest>LAP_SCAN_THRESHOLD_HIGH) {
-			--laps;
-		}
-	} 
-
-	last_nearest = nearest;
-	encoderAbsolutePosition = (laps * TRACK_LENGTH) + nearest;
-	*_encPos = encoderAbsolutePosition;
-}
-
-void encoderPosition(long *_encPos) 
-{
-	a = *_AN0;
-	b = *_AN1;
-
-	// init search variables
-	dist = 0xFFFF;
-	long_dist = 0x7FFFFFFF;
-	nearest = -1;
-
-	// Coarse position approximation: track is search in inc1 steps 
-	for(scan=0;scan<TRACK_LENGTH;scan+=inc1) {
-		long error_a = a-track[scan].a;
-		long error_b = b-track[scan].b;
-		error_b *= error_b;
-		error_a *= error_a;
-		long_d_aux = error_a + error_b;
-		if(long_d_aux < long_dist) {
-			long_dist = long_d_aux;
-			nearest = scan;
-		}
-	}
+	++dist;
+	dist <<= 6; // multiply by 8 and square it: 64 => 2^6
 
 	// from coarse search, track is sectioned 
 	int section_a1;
