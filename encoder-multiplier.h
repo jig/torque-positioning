@@ -8,5 +8,7 @@
 #include "encoder-fingerprint.h"
 
 void configEncoder();
+void coarseEncoderPosition(long *_encPos);
 void encoderPosition(long *encPos);
+void deltaEncoderPosition(long *_encPos);
 void resetEncoderPosition();

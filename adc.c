@@ -51,7 +51,7 @@ void configAdc() {
 	
 	AD1CON3bits.ADRC = 0;		// ADC Clock is derived from Systems Clock (0; 1=internal clock)
 	AD1CON3bits.SAMC = 1;		// 1 TAD; auto sample time bits
-	AD1CON3bits.ADCS = 2; //3; //63;// 3=>TAD = 100 ns > 75 ns
+	AD1CON3bits.ADCS = 3; //3; //63;// 3=>TAD = 100 ns > 75 ns
 	
 	AD1CON4bits.DMABL = LOG_SAMP_BUFF_SIZE;	// Each buffer contains 1 words (0=log(SAMP_BUFF_SIZE))
 
