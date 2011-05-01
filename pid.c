@@ -13,11 +13,11 @@ long pid_meanError = 0;
 float pid_attr_i = 0.0;
 float pid_attr_d = 100.0;
 float pid_attr_m = 0.0;*/
-unsigned int pid_attr_d = 100;
-unsigned int pid_attr_p = 10;
+unsigned int pid_attr_d = 10;
+unsigned int pid_attr_p = 1;
 unsigned int pid_attr_p_divisor = 0;
 unsigned int pid_attr_i = 0;
-unsigned int pid_attr_i_divisor = 8;
+unsigned int pid_attr_i_divisor = 0;
 unsigned int pid_attr_m = 1;
 
 unsigned int pid_attr_dutymin;
@@ -59,12 +59,12 @@ void pid_Action(long posError, int targetDecaAngle, int *decaAngle, unsigned int
 	}
 
 	if(action > 0) {
-		// *decaAngle = targetDecaAngle	+ 900; // inverted encoder
-		*decaAngle = targetDecaAngle - 900; // direct encoder
+		*decaAngle = targetDecaAngle	+ 900; // inverted encoder
+		// *decaAngle = targetDecaAngle - 900; // direct encoder
 	} else if(action < 0) {
 		action = -action;
-		// *decaAngle = targetDecaAngle - 900;  // inverted encoder
-		*decaAngle = targetDecaAngle + 900; // direct encoder
+		*decaAngle = targetDecaAngle - 900;  // inverted encoder
+		// *decaAngle = targetDecaAngle + 900; // direct encoder
 	} else {
 		*decaAngle = targetDecaAngle;
 	}

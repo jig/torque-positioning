@@ -5,13 +5,12 @@
 /** Doc: see http://code.google.com/p/jig-torque-positioning   **/
 /****************************************************************/
 
-// defines steps per (decaAngle) degree:
-// (this encoder has 1 million (approx) steps per rev:
-#define ANGLE_ENCODER_RATIO (900000L/1800L)
+#ifndef _UART_CONFIG1_H
+#	define _UART_CONFIG1_H
+#	include <uart.h>
 
+#	define NL "\r\n"
+// #define NL 	"\x1B[1E"
 
-// Use -/+ sign to adjust encoder and motor directions
-int getBestAngle(long encPos) { 
-	return encPos / ANGLE_ENCODER_RATIO;
-	// return - encPos / ANGLE_ENCODER_RATIO;
-}
+	void configUart1(long fcy, long baudvalue);
+#endif

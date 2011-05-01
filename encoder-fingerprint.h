@@ -9,7 +9,8 @@
 #	define ENCODER_FINGERPRINT_H
 	struct encoder_point {int a; int b;};
 	
-	extern const struct encoder_point track[];
+	extern const unsigned int track_A[];
+	extern const unsigned int track_B[];
 	extern const unsigned int coarseInc;
 	extern const unsigned int inc1;
 	extern const unsigned int inc2;
