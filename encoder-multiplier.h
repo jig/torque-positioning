@@ -11,4 +11,5 @@ void configEncoder();
 void coarseEncoderPosition(long *_encPos);
 void encoderPosition(long *encPos);
 void deltaEncoderPosition(long *_encPos);
+void logEncoderPosition(long *encPos);
 void resetEncoderPosition();

@@ -1,0 +1,3 @@
+/*
+PICkit 3 detectedConnecting to PICkit 3...Running self test...Self test completedRS Version.......... 01.08.19AP Version.......... 01.08.19Downloading RS...RS download completeDownloading AP...AP download completeRunning self test...Self test completedFirmware Suite Version...... 01.26.33Firmware type......................dsPIC33F/24F/24HPICkit 3 Connected.Target DetectedDevice ID Revision = 00003003
+*/

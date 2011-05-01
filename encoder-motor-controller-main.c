@@ -21,6 +21,7 @@ _FPOR(ALTI2C_ON)
 #include "timer1.h"
 #include "encoder-multiplier.h"
 #include "encoder-fingerprint.h"
+#include "encoder-angle-mapping.h"
 #include "pwm.h"
 #include "trigo.h"
 #include "uart-config1.h"
@@ -72,6 +73,7 @@ int main() {
 			U2TXREG = 0;
 			fieldTargetDecaAngle = getBestAngle(brakeAt);
 			U2TXREG = 1;
+			// logEncoderPosition(&encPos);
 			encoderPosition(&encPos);
 			U2TXREG = 5;
 			pid_Action(encPos - brakeAt, fieldTargetDecaAngle, &decaAngle, &power);
