@@ -16,8 +16,8 @@ float pid_attr_m = 0.0;*/
 unsigned int pid_attr_d = 10;
 unsigned int pid_attr_p = 1;
 unsigned int pid_attr_p_divisor = 0;
-unsigned int pid_attr_i = 0;
-unsigned int pid_attr_i_divisor = 0;
+unsigned int pid_attr_i = 1;
+unsigned int pid_attr_i_divisor = 10;
 unsigned int pid_attr_m = 1;
 
 unsigned int pid_attr_dutymin;
