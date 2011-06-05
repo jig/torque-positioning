@@ -38,13 +38,8 @@ int absolute_command = 0;
 void configEncoder()
 {
 	configAdc();
-	int i;
-	for(i=0; i < SHORT_TRACK_LENGTH; ++i) {
-		int pos = TRACK_LENGTH * i / SHORT_TRACK_LENGTH;
-		short_a[i] = track_A[pos] >> 3;
-		short_b[i] = track_B[pos] >> 3;
-		short_pos[i] = pos;
-	}
+	configTrack();
+	configShortTrack();
 }
 
 void resetEncoderPosition() {
@@ -182,7 +177,7 @@ void encoderPosition(long *_encPos)
 	*_encPos = encoderAbsolutePosition;
 }
 
-void logEncoderPosition(long *_encPos)
+/*void logEncoderPosition(long *_encPos)
 {
 	a = *_AN0;
 	b = *_AN1;
@@ -254,9 +249,7 @@ void logEncoderPosition(long *_encPos)
 				nearest = nearest_less_inc;
 			} else if(long_d_y < long_dist) {
 				nearest = nearest_plus_inc;
-			} /* else {
-				nearest = nearest;
-			} */
+			} 
 			break;
 		}
 	}
@@ -276,4 +269,4 @@ void logEncoderPosition(long *_encPos)
 	last_nearest = nearest;
 	encoderAbsolutePosition = (laps * TRACK_LENGTH) + nearest;
 	*_encPos = encoderAbsolutePosition;
-}
+}*/

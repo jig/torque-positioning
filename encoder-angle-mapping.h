@@ -6,3 +6,4 @@
 /****************************************************************/
 
 int getBestAngle(long encPos);
+long _inverseGetBestAngle(int decaAngle);
