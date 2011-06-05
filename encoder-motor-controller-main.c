@@ -38,70 +38,212 @@ int main() {
 	configEncoder();
 	configPwm(PWM_PERIOD);
 	configField();
-	configPid(200, PWM_MAXDUTY, 500);
+	// configPid(200, PWM_MAXDUTY, 500);
+	configPid(0, PWM_MAXDUTY, 500);
 	configUart1(FCY, 10000000);	
 	configUart2(FCY, 10000000);	
 
 	long encPos = 0;
 	long brakeAt = 0;
-
-	// now reset the encoder to zero (coarse, approx)
-	setField(0, PWM_MAXDUTY);
-	// 2 s is enough for my system to stabilize from a near position, 3 s from a far position
-	delay_s(3); 
-	/*int p1=1, p2=1, p3=1;
-	while(p1!=13) {
-		setPwmAll(p1, p2, p3);
-	}*/
+	/*
+	setPwm(1, PWM_MAXDUTY);
+	delay_s(2);
+	TMR1 = 0;
+	setPwm(1, 0);
+	setPwm(2, PWM_MAXDUTY);
+	delay_s(2);
+	TMR1 = 0;
+	setPwm(2, 0);
+	setPwm(3, PWM_MAXDUTY);
+	delay_s(2);
+	TMR1 = 0;
+	setPwm(3, 0);
+	setPwm(1, -PWM_MAXDUTY);
+	delay_s(2);
+	TMR1 = 0;
+	setPwm(1, 0);
+	setPwm(2, -PWM_MAXDUTY);
+	delay_s(2);
+	TMR1 = 0;
+	setPwm(2, 0);
+	setPwm(3, -PWM_MAXDUTY);
+	delay_s(2);
+	TMR1 = 0;
+	setPwm(3, 0);
+	delay_s(2);
+	*/
+	int L;
+	for(L=700;L<780;++L) {
+		setField(L, PWM_MAXDUTY);
+		encoderPosition(&encPos);
+		delay_ms(1);
+		encoderPosition(&encPos);
+		delay_ms(1);
+		encoderPosition(&encPos);
+		delay_ms(1);
+		encoderPosition(&encPos);
+		delay_ms(1);
+		encoderPosition(&encPos);
+		delay_ms(1);
+		encoderPosition(&encPos);
+		delay_ms(1);
+		encoderPosition(&encPos);
+		delay_ms(1);
+	}
+	for(;L>=0;--L) {
+		setField(L, PWM_MAXDUTY);
+		encoderPosition(&encPos);
+		delay_ms(1);
+		encoderPosition(&encPos);
+		delay_ms(1);
+		encoderPosition(&encPos);
+		delay_ms(1);
+		encoderPosition(&encPos);
+		delay_ms(1);
+		encoderPosition(&encPos);
+		delay_ms(1);
+		encoderPosition(&encPos);
+		delay_ms(1);
+		encoderPosition(&encPos);
+		delay_ms(1);
+	}
 	resetEncoderPosition();
+	for(;L<780;++L) {
+		setField(L, PWM_MAXDUTY);
+		encoderPosition(&encPos);
+		delay_ms(1);
+		encoderPosition(&encPos);
+		delay_ms(1);
+		encoderPosition(&encPos);
+		delay_ms(1);
+		encoderPosition(&encPos);
+		delay_ms(1);
+		encoderPosition(&encPos);
+		delay_ms(1);
+		encoderPosition(&encPos);
+		delay_ms(1);
+		encoderPosition(&encPos);
+		delay_ms(1);
+	}
+	delay_ms(300);
 	encoderPosition(&encPos);
+	TMR1 = 0;
+/*	int xx = 0;
 
-	int decaAngle;
-	unsigned int power;
+	for(L=0;L<925;++L) {
+		setField(L, PWM_MAXDUTY);
+		for(xx=0;xx<10;++xx) {
+			encoderPosition(&encPos);
+			delay_ms(1);
+		}
+		TMR1 = 0;
+	}
+	encoderPosition(&encPos);
+	TMR1 = 0;
+	for(L=925;L>0;--L) {
+		setField(L, PWM_MAXDUTY);
+		for(xx=0;xx<10;++xx) {
+			encoderPosition(&encPos);
+			delay_ms(1);
+		}
+		TMR1 = 0;
+	}
+	encoderPosition(&encPos);
+	TMR1 = 0;
+	for(L=0;L>-2400;--L) {
+		setField(L, PWM_MAXDUTY);
+		for(xx=0;xx<10;++xx) {
+			encoderPosition(&encPos);
+			delay_ms(1);
+		}
+		TMR1 = 0;
+	}
+	encoderPosition(&encPos);
+	TMR1 = 0;
+	for(L=-2400;L<0;++L) {
+		setField(L, PWM_MAXDUTY);
+		for(xx=0;xx<10;++xx) {
+			encoderPosition(&encPos);
+			delay_ms(1);
+		}
+		TMR1 = 0;
+	}
+	encoderPosition(&encPos);
+	TMR1 = 0;
+	// now reset the encoder to zero (coarse, approx)
+*/
 
 	int i;
-	int incBrakeAt = 1;
-	int incI = 100; 
-	long minTrack = -100L * 3600L;
-	long maxTrack = 200L * 3600L;
-	int fieldTargetDecaAngle; 
+	int incBrakeAt = 32; //64;
+	int incI = 1; 
+	long minTrack = -410000L;
+	long maxTrack = 1370000L;
+	long midTrack = (maxTrack + minTrack) / 2;
 
-	for(brakeAt=0; brakeAt<maxTrack;brakeAt+=incBrakeAt) {
-		TMR1 = 0;
-		for(i=0;i<incI;++i) {
-			U1TXREG = 0b11111111;
-			U2TXREG = 0;
-			fieldTargetDecaAngle = getBestAngle(brakeAt);
-			U2TXREG = 1;
-			// logEncoderPosition(&encPos);
-			encoderPosition(&encPos);
-			U2TXREG = 5;
-			pid_Action(encPos - brakeAt, fieldTargetDecaAngle, &decaAngle, &power);
-			U2TXREG = 9;
-			setField(decaAngle, power);
-		}
+	long trackAtom(long*, long);
+
+	for(brakeAt = _inverseGetBestAngle(L); brakeAt<maxTrack;brakeAt+=incBrakeAt) {
+		U1TXREG = 0b11111111;
+		trackAtom(&encPos, brakeAt);
 	}
+
+	long j;
 
 	while(1) {
-		for(brakeAt=maxTrack; brakeAt>minTrack;brakeAt-=incBrakeAt) {
-			TMR1 = 0;
+		for(; brakeAt>midTrack;brakeAt-=incBrakeAt) {
 			U1TXREG = 0b11111111;
-			for(i=0;i<incI;++i) {
-				fieldTargetDecaAngle = getBestAngle(brakeAt);
-				encoderPosition(&encPos);
-				pid_Action(encPos - brakeAt, fieldTargetDecaAngle, &decaAngle, &power);
-				setField(decaAngle, power);
-			}
+			trackAtom(&encPos, brakeAt);
 		}
-		for(brakeAt=minTrack; brakeAt<maxTrack;brakeAt+=incBrakeAt) {
-			TMR1 = 0;
+		for(j=0; j<20000;++j) {
 			U1TXREG = 0b11111111;
-			for(i=0;i<incI;++i) {
-				fieldTargetDecaAngle = getBestAngle(brakeAt);
-				encoderPosition(&encPos);
-				pid_Action(encPos - brakeAt, fieldTargetDecaAngle, &decaAngle, &power);
-				setField(decaAngle, power);
-			}
+			trackAtom(&encPos, brakeAt);
 		}
+		for(; brakeAt>minTrack;brakeAt-=incBrakeAt) {
+			U1TXREG = 0b11111111;
+			trackAtom(&encPos, brakeAt);
+		}
+		for(j=0; j<20000;++j) {
+			U1TXREG = 0b11111111;
+			trackAtom(&encPos, brakeAt);
+		}
+		for(; brakeAt<midTrack;brakeAt+=incBrakeAt) {
+			U1TXREG = 0b11111111;
+			trackAtom(&encPos, brakeAt);
+		}
+		for(j=0; j<20000;++j) {
+			U1TXREG = 0b11111111;
+			trackAtom(&encPos, brakeAt);
+		}
+
+		extern unsigned int pid_attr_i;
+		extern long pid_meanError;
+		pid_meanError = 0;
+		pid_attr_i = 1;
+		incBrakeAt = 1;
+
+		for(; brakeAt<maxTrack;brakeAt+=incBrakeAt) {
+			U1TXREG = 0b11111111;
+			trackAtom(&encPos, brakeAt);
+		}
+		for(j=0; j<20000;++j) {
+			U1TXREG = 0b11111111;
+			trackAtom(&encPos, brakeAt);
+		}
+		pid_attr_i = 0;
+		incBrakeAt = 64;
 	}
+}
+
+long trackAtom(long *encPos, long brakeAt) {
+	TMR1 = 0;
+	
+	int fieldTargetDecaAngle = getBestAngle(brakeAt);
+	encoderPosition(encPos);
+
+	long error = *encPos - brakeAt;
+	int decaAngle;
+	unsigned int power;
+	pid_Action(error, fieldTargetDecaAngle, &decaAngle, &power);
+	setField(decaAngle, power);
+	return error;
 }

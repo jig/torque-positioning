@@ -9,8 +9,8 @@
 #	define ENCODER_FINGERPRINT_H
 	struct encoder_point {int a; int b;};
 	
-	extern const unsigned int track_A[];
-	extern const unsigned int track_B[];
+	extern unsigned int track_A[];
+	extern unsigned int track_B[];
 	extern const unsigned int coarseInc;
 	extern const unsigned int inc1;
 	extern const unsigned int inc2;
@@ -23,5 +23,8 @@
 	extern int short_b[];
 	extern int short_pos[];
 	extern const unsigned int SHORT_TRACK_LENGTH;
+
+	void configTrack();
+	void configShortTrack();
 #endif
 
