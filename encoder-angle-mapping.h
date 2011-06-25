@@ -5,5 +5,8 @@
 /** Doc: see http://code.google.com/p/jig-torque-positioning   **/
 /****************************************************************/
 
-int getBestAngle(long encPos);
-long _inverseGetBestAngle(int decaAngle);
+#ifndef _ENCODER_ANGLE_MAPPING_H
+#	define _ENCODER_ANGLE_MAPPING_H
+	int getBestAngle(long encPos);
+	long _inverseGetBestAngle(int decaAngle);
+#endif
