@@ -5,6 +5,13 @@
 /** Doc: see http://code.google.com/p/jig-torque-positioning   **/
 /****************************************************************/
 
+/*
+	- This version of rotary/lineal encoder-multiplier decoder uses a elliptic generated track that
+	must be callibrated before use with real track.
+	- This track is generated during system load on RAM
+	- Afterwards, mesured a,b points are distance mesured against 
+*/
+
 #include <p33Fxxxx.h> // TMR1
 
 #include "adc.h"
@@ -40,6 +47,10 @@ void configEncoder()
 	configAdc();
 	configTrack();
 	configShortTrack();
+}
+
+void resetEncoderPositionTo(long pos) {
+	laps = pos/TRACK_LENGTH;
 }
 
 void resetEncoderPosition() {
@@ -177,96 +188,3 @@ void encoderPosition(long *_encPos)
 	*_encPos = encoderAbsolutePosition;
 }
 
-/*void logEncoderPosition(long *_encPos)
-{
-	a = *_AN0;
-	b = *_AN1;
-
-	TMR1 = 0;
-	// init search variables
-	long_dist = 0x7FFFFFFF;
-	nearest = -1;
-
-	// Coarse position approximation: track is search in inc1 steps 
-	for(scan=0;scan<TRACK_LENGTH;scan+=( TRACK_LENGTH/8 +1 )) {
-		int error_a = a-track_A[scan];
-		int error_b = b-track_B[scan];
-		long_d_aux = __builtin_mulss(error_a, error_a) + __builtin_mulss(error_b, error_b);
-		if(long_d_aux < long_dist) {
-			long_dist = long_d_aux;
-			nearest = scan;
-		}
-	}
-
-	// assert(TRACK_LENGTH/8>256);
-	long int long_d_x;
-	long int long_d_y;
-
-	int inc = 256;
-
-	int nearest_less_inc = nearest-inc;
-	if(nearest_less_inc<0) {
-		nearest_less_inc += TRACK_LENGTH;
-	}
-
-	int nearest_plus_inc = nearest+inc;
-	if(nearest_plus_inc>TRACK_LENGTH) {
-		nearest_plus_inc -= TRACK_LENGTH;
-	}
-
-	while(1) {
-		unsigned int xa;
-		unsigned int xb;
-		unsigned int ya;
-		unsigned int yb;
-		xa = a-track_A[nearest_less_inc];
-		xb = b-track_B[nearest_less_inc];
-		ya = a-track_A[nearest_plus_inc];
-		yb = b-track_B[nearest_plus_inc];
-		long_d_x = __builtin_mulss(xa,xa) + __builtin_mulss(xb,xb);
-		long_d_y = __builtin_mulss(ya,ya) + __builtin_mulss(yb,yb);
-
-		inc >>= 1;
-		if(inc) {
-			if(long_d_x < long_d_y) {
-				nearest_plus_inc = nearest;
-				nearest -= inc;
-				if(nearest < 0) {
-					nearest += TRACK_LENGTH;
-				}
-			} else {
-				nearest_less_inc = nearest;
-				nearest += inc;
-				if(nearest >= TRACK_LENGTH) {
-					nearest -= TRACK_LENGTH;
-				}
-			}
-		} else {
-			unsigned int za = a-track_A[nearest];
-			unsigned int zb = b-track_B[nearest];
-			long_dist = __builtin_mulss(za,za) + __builtin_mulss(zb,zb);
-			if(long_d_x < long_dist) {
-				nearest = nearest_less_inc;
-			} else if(long_d_y < long_dist) {
-				nearest = nearest_plus_inc;
-			} 
-			break;
-		}
-	}
-
-	if(last_nearest>LAP_SCAN_THRESHOLD_HIGH) {
-		if(nearest<LAP_SCAN_THRESHOLD_LOW) {
-			// --laps;	// for encoder-motor alternate direction
-			++laps;  // for encoder-motor same direction
-		}
-	} else if(last_nearest<LAP_SCAN_THRESHOLD_LOW) {
-		if(nearest>LAP_SCAN_THRESHOLD_HIGH) {
-			// ++laps;	// for encoder-motor alternate direction
-			--laps;  // for encoder-motor same direction
-		}
-	} 
-
-	last_nearest = nearest;
-	encoderAbsolutePosition = (laps * TRACK_LENGTH) + nearest;
-	*_encPos = encoderAbsolutePosition;
-}*/

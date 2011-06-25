@@ -32,162 +32,91 @@ _FPOR(ALTI2C_ON)
 #define PWM_PERIOD 1000
 #define PWM_MAXDUTY (PWM_PERIOD*2)
 
+unsigned int poum = 1000;
+
 int main() {
 	configClock40MHz();
 	configTimer1(0xFFFF);
 	configEncoder();
 	configPwm(PWM_PERIOD);
 	configField();
-	// configPid(200, PWM_MAXDUTY, 500);
-	configPid(0, PWM_MAXDUTY, 500);
+	configPid(0, PWM_MAXDUTY, 600);
 	configUart1(FCY, 10000000);	
-	configUart2(FCY, 10000000);	
+	configUart2(FCY, 10000000);
 
 	long encPos = 0;
 	long brakeAt = 0;
-	/*
-	setPwm(1, PWM_MAXDUTY);
-	delay_s(2);
-	TMR1 = 0;
-	setPwm(1, 0);
-	setPwm(2, PWM_MAXDUTY);
-	delay_s(2);
-	TMR1 = 0;
-	setPwm(2, 0);
-	setPwm(3, PWM_MAXDUTY);
-	delay_s(2);
-	TMR1 = 0;
-	setPwm(3, 0);
-	setPwm(1, -PWM_MAXDUTY);
-	delay_s(2);
-	TMR1 = 0;
-	setPwm(1, 0);
-	setPwm(2, -PWM_MAXDUTY);
-	delay_s(2);
-	TMR1 = 0;
-	setPwm(2, 0);
-	setPwm(3, -PWM_MAXDUTY);
-	delay_s(2);
-	TMR1 = 0;
-	setPwm(3, 0);
-	delay_s(2);
-	*/
-	int L;
-	for(L=700;L<780;++L) {
-		setField(L, PWM_MAXDUTY);
-		encoderPosition(&encPos);
-		delay_ms(1);
-		encoderPosition(&encPos);
-		delay_ms(1);
-		encoderPosition(&encPos);
-		delay_ms(1);
-		encoderPosition(&encPos);
-		delay_ms(1);
-		encoderPosition(&encPos);
-		delay_ms(1);
-		encoderPosition(&encPos);
-		delay_ms(1);
-		encoderPosition(&encPos);
-		delay_ms(1);
-	}
-	for(;L>=0;--L) {
-		setField(L, PWM_MAXDUTY);
-		encoderPosition(&encPos);
-		delay_ms(1);
-		encoderPosition(&encPos);
-		delay_ms(1);
-		encoderPosition(&encPos);
-		delay_ms(1);
-		encoderPosition(&encPos);
-		delay_ms(1);
-		encoderPosition(&encPos);
-		delay_ms(1);
-		encoderPosition(&encPos);
-		delay_ms(1);
-		encoderPosition(&encPos);
-		delay_ms(1);
-	}
-	resetEncoderPosition();
-	for(;L<780;++L) {
-		setField(L, PWM_MAXDUTY);
-		encoderPosition(&encPos);
-		delay_ms(1);
-		encoderPosition(&encPos);
-		delay_ms(1);
-		encoderPosition(&encPos);
-		delay_ms(1);
-		encoderPosition(&encPos);
-		delay_ms(1);
-		encoderPosition(&encPos);
-		delay_ms(1);
-		encoderPosition(&encPos);
-		delay_ms(1);
-		encoderPosition(&encPos);
-		delay_ms(1);
-	}
-	delay_ms(300);
-	encoderPosition(&encPos);
-	TMR1 = 0;
-/*	int xx = 0;
 
-	for(L=0;L<925;++L) {
+#define END_OF_TRACK 780
+	int L;
+	for(L=END_OF_TRACK-30;L<END_OF_TRACK;++L) {
 		setField(L, PWM_MAXDUTY);
-		for(xx=0;xx<10;++xx) {
-			encoderPosition(&encPos);
-			delay_ms(1);
-		}
-		TMR1 = 0;
+		delay_ms(7);
 	}
-	encoderPosition(&encPos);
+	delay_ms(1000); // stoping time
+	resetEncoderPositionTo(_inverseGetBestAngle(L));
 	TMR1 = 0;
-	for(L=925;L>0;--L) {
-		setField(L, PWM_MAXDUTY);
-		for(xx=0;xx<10;++xx) {
-			encoderPosition(&encPos);
-			delay_ms(1);
-		}
-		TMR1 = 0;
-	}
-	encoderPosition(&encPos);
-	TMR1 = 0;
-	for(L=0;L>-2400;--L) {
-		setField(L, PWM_MAXDUTY);
-		for(xx=0;xx<10;++xx) {
-			encoderPosition(&encPos);
-			delay_ms(1);
-		}
-		TMR1 = 0;
-	}
-	encoderPosition(&encPos);
-	TMR1 = 0;
-	for(L=-2400;L<0;++L) {
-		setField(L, PWM_MAXDUTY);
-		for(xx=0;xx<10;++xx) {
-			encoderPosition(&encPos);
-			delay_ms(1);
-		}
-		TMR1 = 0;
-	}
-	encoderPosition(&encPos);
-	TMR1 = 0;
-	// now reset the encoder to zero (coarse, approx)
-*/
 
 	int i;
-	int incBrakeAt = 32; //64;
+	int incBrakeAt = 40; //64;
 	int incI = 1; 
-	long minTrack = -410000L;
+	long minTrack = -380000L;
 	long maxTrack = 1370000L;
-	long midTrack = (maxTrack + minTrack) / 2;
+	long midTrack = -200000L;
+	// long midTrack = -200000;
 
 	long trackAtom(long*, long);
+	long trackAtomPoum(long *, long, unsigned int);
 
-	for(brakeAt = _inverseGetBestAngle(L); brakeAt<maxTrack;brakeAt+=incBrakeAt) {
+	for(brakeAt = _inverseGetBestAngle(L); brakeAt<midTrack;brakeAt+=incBrakeAt) {
 		U1TXREG = 0b11111111;
 		trackAtom(&encPos, brakeAt);
 	}
+	/* while(1) {
+		U1TXREG = 0b11111111;
+		trackAtom(&encPos, brakeAt);
+	}*/
 
 	long j;
+
+	for(j=0; j<10000; ++j) {
+		U1TXREG = 0b11111111;
+		trackAtom(&encPos, brakeAt);
+	}
+	/*
+	*errorLogPointer++ = brakeAt - encPos;
+	setField(1800, 2000);
+	delay_ms(1);
+	*errorLogPointer++ = brakeAt - encPos;
+	setField(0, 2000);
+	delay_ms(1);
+	*errorLogPointer++ = brakeAt - encPos;
+	setField(0, 0);
+	delay_ms(1);
+	*errorLogPointer++ = brakeAt - encPos;
+	
+	long jlast = 2048L*(long)errorGapStop;
+
+	for(j=0; j<jlast; ++j) {
+		U1TXREG = 0b11111111;
+		encoderPosition(&encPos);
+		if(errorGap==0) {
+			errorGap = errorGapStop;
+			// *actionLogPointer++ = action;
+			*errorLogPointer++ = brakeAt - encPos;
+			if(errorLogPointer == errorLogLastPointer) {
+				errorLogPointer = errorLog;
+				// actionLogPointer = actionLog;
+			}
+		} else {	
+			--errorGap;
+		}
+	}
+
+	while(1) {
+		encoderPosition(&encPos);
+		U1TXREG = 0b11111111;
+	}*/
 
 	while(1) {
 		for(; brakeAt>midTrack;brakeAt-=incBrakeAt) {
@@ -215,28 +144,54 @@ int main() {
 			trackAtom(&encPos, brakeAt);
 		}
 
-		extern unsigned int pid_attr_i;
+		/*extern unsigned int pid_attr_i;
 		extern long pid_meanError;
 		pid_meanError = 0;
-		pid_attr_i = 1;
+		pid_attr_i = 0;*/
 		incBrakeAt = 1;
 
 		for(; brakeAt<maxTrack;brakeAt+=incBrakeAt) {
-			U1TXREG = 0b11111111;
-			trackAtom(&encPos, brakeAt);
+			for(i=0;i<190;++i) {
+				trackAtom(&encPos, brakeAt);
+			}
+			trackAtomPoum(&encPos, brakeAt, poum);
+			for(i=0;i<50;++i) {
+				trackAtom(&encPos, brakeAt);
+			}
+			trackAtomPoum(&encPos, brakeAt, poum);
+			for(i=0;i<170;++i) {
+				trackAtom(&encPos, brakeAt);
+			}
+			trackAtomPoum(&encPos, brakeAt, poum);
+			for(i=0;i<130;++i) {
+				trackAtom(&encPos, brakeAt);
+			}
+			trackAtomPoum(&encPos, brakeAt, poum);
+			for(i=0;i<90;++i) {
+				trackAtom(&encPos, brakeAt);
+			}
+			trackAtomPoum(&encPos, brakeAt, poum);
+			for(i=0;i<30;++i) {
+				trackAtom(&encPos, brakeAt);
+			}
+			trackAtomPoum(&encPos, brakeAt, poum);
 		}
 		for(j=0; j<20000;++j) {
 			U1TXREG = 0b11111111;
 			trackAtom(&encPos, brakeAt);
 		}
-		pid_attr_i = 0;
+		// pid_attr_i = 0;
 		incBrakeAt = 64;
 	}
 }
 
+// int period = 3450;
+int period = 6900;
+
 long trackAtom(long *encPos, long brakeAt) {
 	TMR1 = 0;
-	
+	U1TXREG = 0;
+
 	int fieldTargetDecaAngle = getBestAngle(brakeAt);
 	encoderPosition(encPos);
 
@@ -245,5 +200,22 @@ long trackAtom(long *encPos, long brakeAt) {
 	unsigned int power;
 	pid_Action(error, fieldTargetDecaAngle, &decaAngle, &power);
 	setField(decaAngle, power);
+	while(TMR1 < period);
+	return error;
+}
+
+long trackAtomPoum(long *encPos, long brakeAt, unsigned int poum) {
+	TMR1 = 0;
+	U1TXREG = 0;
+
+	int fieldTargetDecaAngle = getBestAngle(brakeAt);
+	encoderPosition(encPos);
+
+	long error = *encPos - brakeAt;
+	int decaAngle;
+	unsigned int power;
+	pid_Action(error, fieldTargetDecaAngle, &decaAngle, &power);
+	setField(decaAngle, poum+power);
+	while(TMR1 < period);
 	return error;
 }

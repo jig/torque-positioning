@@ -44,3 +44,4 @@ void configTimer3(int pr3) {
 	//Start Timer 3
 	T3CONbits.TON = 1;
 }
+ 

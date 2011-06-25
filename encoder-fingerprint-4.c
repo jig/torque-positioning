@@ -39,10 +39,17 @@ int short_b[_SHORT_TRACK_LENGTH];
 int short_pos[_SHORT_TRACK_LENGTH];
 
 // calculated values for track
-const int MEAN_A = 639;
-const int MEAN_B = 515;
-const int SEMIAXE_A = 362;
-const int SEMIAXE_B = 297;
+
+const int MEAN_A = (961+254)/2; //683; //660; //619;
+const int MEAN_B = (739+167)/2; //524; //512; //495;
+const int SEMIAXE_A = (961-254)/2; //246; //240; //360;
+const int SEMIAXE_B = (739-167)/2; //210; //305;
+/*
+const int MEAN_A = (1012+232)/2; //683; //660; //619;
+const int MEAN_B = (756+176)/2; //524; //512; //495;
+const int SEMIAXE_A = (1012-232)/2; //246; //240; //360;
+const int SEMIAXE_B = (756-176)/2; //210; //305;
+*/
 
 #define PI 3.14159265358979323846
 

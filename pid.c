@@ -7,22 +7,19 @@
 
 long pid_deltaError = 0;
 long pid_lastPosError = 0;
-long pid_meanError = 0;
+long pid_integralError = 0;
 
-/*float pid_attr_p = 10.0;
-float pid_attr_i = 0.0;
-float pid_attr_d = 100.0;
-float pid_attr_m = 0.0;*/
-unsigned int pid_attr_d = 32;
-unsigned int pid_attr_p = 1;
-unsigned int pid_attr_p_divisor = 0;
-unsigned int pid_attr_i = 0;
-unsigned int pid_attr_i_divisor = 9;
-unsigned int pid_attr_m = 1;
+#define SHIFT_DECIMALS 18
+// Ku=20000
+// Tu=4000
+long pid_attr_d = 500000;
+long pid_attr_p = 30000;
+long pid_attr_i = 1;//2;
+long pid_attr_m = 1;
 
-unsigned int pid_attr_dutymin;
-unsigned int pid_attr_dutymax;
-unsigned int pid_attr_meanErrorMax; 
+long pid_attr_dutymin;
+long pid_attr_dutymax;
+long pid_attr_meanErrorMax; 
 
 void configPid(unsigned int dutymin, unsigned int dutymax, unsigned meanErrorMax) {
 	pid_attr_dutymin = dutymin;
@@ -30,6 +27,8 @@ void configPid(unsigned int dutymin, unsigned int dutymax, unsigned meanErrorMax
 	pid_attr_meanErrorMax = meanErrorMax;
 }
 
+int errorGap = 0;
+int errorGapStop = 5;
 int errorLog[1024];
 int* errorLogPointer = errorLog;
 int* errorLogLastPointer = errorLog + (sizeof errorLog/sizeof errorLog[0]);
@@ -38,26 +37,34 @@ int* actionLogPointer = actionLog;
 int* actionLogLastPointer = actionLog + (sizeof actionLog/sizeof actionLog[0]);
 
 void pid_Action(long posError, int targetDecaAngle, int *decaAngle, unsigned int *power) {
-	long lastDeltaError = pid_deltaError;
+#define SHIFT_DECIMALS_HALF_PERIOD (1L<<(SHIFT_DECIMALS-1))
+	// long lastDeltaError = pid_deltaError;
 
 	pid_deltaError = posError-pid_lastPosError;
 	pid_lastPosError = posError;
 
 	long action;
 	action = 
-		((posError * pid_attr_p)>>pid_attr_p_divisor) +
-		(lastDeltaError + pid_deltaError) * pid_attr_d +
-		+ ((pid_meanError * pid_attr_i)>>pid_attr_i_divisor);
+		posError * pid_attr_p +
+		pid_deltaError * pid_attr_d +
+		pid_integralError * pid_attr_i;
 
-	pid_meanError = pid_meanError * pid_attr_m + posError;
+	pid_integralError = pid_integralError + posError;
 
-	*actionLogPointer++ = action;
-	*errorLogPointer++ = posError;
-	if(errorLogPointer == errorLogLastPointer) {
-		errorLogPointer = errorLog;
-		actionLogPointer = actionLog;
+	action+=SHIFT_DECIMALS_HALF_PERIOD;
+	action>>=SHIFT_DECIMALS;
+
+	if(errorGap==0) {
+		errorGap = errorGapStop;
+		*actionLogPointer++ = action;
+		*errorLogPointer++ = posError;
+		if(errorLogPointer == errorLogLastPointer) {
+			errorLogPointer = errorLog;
+			actionLogPointer = actionLog;
+		}
+	} else {	
+		--errorGap;
 	}
-
 	if(action > 0) {
 		*decaAngle = targetDecaAngle	+ 900; // inverted encoder
 		// *decaAngle = targetDecaAngle - 900; // direct encoder

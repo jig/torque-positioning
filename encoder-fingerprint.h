@@ -5,8 +5,8 @@
 /** Doc: see http://code.google.com/p/jig-torque-positioning   **/
 /****************************************************************/
 
-#ifndef ENCODER_FINGERPRINT_H
-#	define ENCODER_FINGERPRINT_H
+#ifndef _ENCODER_FINGERPRINT_H
+#	define _ENCODER_FINGERPRINT_H
 	struct encoder_point {int a; int b;};
 	
 	extern unsigned int track_A[];
@@ -23,6 +23,11 @@
 	extern int short_b[];
 	extern int short_pos[];
 	extern const unsigned int SHORT_TRACK_LENGTH;
+
+	extern const int MEAN_A;
+	extern const int MEAN_B;
+	extern const int SEMIAXE_A;
+	extern const int SEMIAXE_B;
 
 	void configTrack();
 	void configShortTrack();

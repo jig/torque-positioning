@@ -5,6 +5,8 @@
 /** Doc: see http://code.google.com/p/jig-torque-positioning   **/
 /****************************************************************/
 
+#ifndef _ADC_H
+#define _ADC_H
 // Define Message Buffer Length for ECAN1/ECAN2
 #define  MAX_CHNUM 4 // Highest Analog input number in Channel Scan (AN3 => 4)
 #define  LOG_SAMP_BUFF_SIZE 0
@@ -31,4 +33,5 @@ void adc_start();
 #else
 #	define AN0 2
 #	define AN1 3
+#endif
 #endif
